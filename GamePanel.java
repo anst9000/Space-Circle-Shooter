@@ -141,13 +141,39 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     // Bullet-Enemy collision
-    bulletEnemyCollision();
+    checkBulletEnemyCollision();
 
     // Check dead enemies
     checkDeadEnemies();
+
+    // Check Player-Enemy collision
+    checkPlayerEnemyCollision();
   }
 
-  private void bulletEnemyCollision() {
+  private void checkPlayerEnemyCollision() {
+    if (!player.isRecovering()) {
+      int px = player.getx();
+      int py = player.gety();
+      int pr = player.getr();
+
+      for (int i = 0; i < enemies.size(); i++) {
+        Enemy enemy = enemies.get(i);
+        double ex = enemy.getx();
+        double ey = enemy.gety();
+        double er = enemy.getr();
+
+        double dx = px - ex;
+        double dy = py - ey;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < pr + er) {
+          player.loseLife();
+        }
+      }
+    }
+  }
+
+  private void checkBulletEnemyCollision() {
     // Bullet-Enemy collision
     for (int bu = 0; bu < bullets.size(); bu++) {
       Bullet bullet = bullets.get(bu);
@@ -178,6 +204,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
   private void checkDeadEnemies() {
     for (int en = 0; en < enemies.size(); en++) {
       if (enemies.get(en).isDead()) {
+        Enemy enemy = enemies.get(en);
+        player.addScore(enemy.getType() + enemy.getRank());
         enemies.remove(en);
         en--;
       }
@@ -224,6 +252,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
       g.drawOval(20 + (20 * life), 20, player.getr() * 2, player.getr() * 2);
       g.setStroke(new BasicStroke(1));
     }
+
+    // Draw player score
+    g.setColor(Color.WHITE);
+    g.setFont(new Font("Century Gothic", Font.PLAIN, 14));
+    g.drawString("Score: " + player.getScore(), WIDTH - 100, 30);
   }
 
   private void gameDraw() {

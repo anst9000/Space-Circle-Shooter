@@ -62,6 +62,14 @@ public class Enemy {
     return r;
   }
 
+  public int getType() {
+    return type;
+  }
+
+  public int getRank() {
+    return rank;
+  }
+
   public boolean isDead() {
     return dead;
   }
