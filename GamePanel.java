@@ -23,6 +23,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
   public static ArrayList<Bullet> bullets;
   public static ArrayList<Enemy> enemies;
 
+  private long waveStartTimer;
+  private long waveStartTimerDiff;
+  private long waveNumber;
+  private boolean waveStart;
+  private int waveDelay = 2000;
+
   // Constructor
   public GamePanel() {
     super();
@@ -47,14 +53,17 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     running = true;
     image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
     g = (Graphics2D) image.getGraphics();
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
     player = new Player();
     bullets = new ArrayList<Bullet>();
     enemies = new ArrayList<Enemy>();
 
-    for (int i = 0; i < 5; i++) {
-      enemies.add(new Enemy(1, 1));
-    }
+    waveStartTimer = 0;
+    waveStartTimerDiff = 0;
+    waveStart = true;
+    waveNumber = 0;
 
     long startTime;
     long URDTimeMillis;
@@ -94,6 +103,25 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
   }
 
   private void gameUpdate() {
+    // New wave
+    if (waveStartTimer == 0 && enemies.size() == 0) {
+      waveNumber++;
+      waveStart = false;
+      waveStartTimer = System.nanoTime();
+    } else {
+      waveStartTimerDiff = (System.nanoTime() - waveStartTimer) / 1000000;
+      if (waveStartTimerDiff > waveDelay) {
+        waveStart = true;
+        waveStartTimer = 0;
+        waveStartTimerDiff = 0;
+      }
+    }
+
+    // Create enemies
+    if (waveStart && enemies.size() == 0) {
+      creaetNewEnemies();
+    }
+
     // Player update
     player.update();
 
@@ -112,6 +140,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
       enemies.get(i).update();
     }
 
+    // Bullet-Enemy collision
+    bulletEnemyCollision();
+
+    // Check dead enemies
+    checkDeadEnemies();
+  }
+
+  private void bulletEnemyCollision() {
     // Bullet-Enemy collision
     for (int bu = 0; bu < bullets.size(); bu++) {
       Bullet bullet = bullets.get(bu);
@@ -137,8 +173,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
       }
     }
+  }
 
-    // Check dead enemies
+  private void checkDeadEnemies() {
     for (int en = 0; en < enemies.size(); en++) {
       if (enemies.get(en).isDead()) {
         enemies.remove(en);
@@ -148,11 +185,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
   }
 
   private void gameRender() {
+    // Background draw
     g.setColor(new Color(0, 100, 255));
     g.fillRect(0, 0, WIDTH, HEIGHT);
-    g.setColor(Color.BLACK);
-    g.drawString("FPS: " + averageFPS, 10, 10);
-    g.drawString("Num bullets: " + bullets.size(), 10, 20);
 
     // Player draw
     player.draw(g);
@@ -166,12 +201,51 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     for (int i = 0; i < enemies.size(); i++) {
       enemies.get(i).draw(g);
     }
+
+    // Draw wave number
+    if (waveStartTimer != 0) {
+      g.setFont(new Font("Century Gothic", Font.PLAIN, 18));
+      String screenText = "- W A V E   " + waveNumber + "   -";
+      int length = (int) g.getFontMetrics().getStringBounds(screenText, g).getWidth();
+      int alpha = (int) (255 * Math.sin(3.14 * waveStartTimerDiff / waveDelay));
+      if (alpha > 255)
+        alpha = 255;
+
+      g.setColor(new Color(255, 255, 255, alpha));
+      g.drawString(screenText, WIDTH / 2 - length / 2, HEIGHT / 2);
+    }
+
+    // Draw player lives
+    for (int life = 0; life < player.getLives(); life++) {
+      g.setColor(Color.WHITE);
+      g.fillOval(20 + (20 * life), 20, player.getr() * 2, player.getr() * 2);
+      g.setStroke(new BasicStroke(3));
+      g.setColor(Color.WHITE.darker());
+      g.drawOval(20 + (20 * life), 20, player.getr() * 2, player.getr() * 2);
+      g.setStroke(new BasicStroke(1));
+    }
   }
 
   private void gameDraw() {
     Graphics g2 = this.getGraphics();
     g2.drawImage(image, 0, 0, null);
     g2.dispose();
+  }
+
+  private void creaetNewEnemies() {
+    enemies.clear();
+
+    if (waveNumber == 1) {
+      for (int i = 0; i < 4; i++) {
+        enemies.add(new Enemy(1, 1));
+      }
+    }
+
+    if (waveNumber == 2) {
+      for (int i = 0; i < 8; i++) {
+        enemies.add(new Enemy(1, 1));
+      }
+    }
   }
 
   @Override
