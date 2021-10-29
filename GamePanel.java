@@ -22,6 +22,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
   public static Player player;
   public static ArrayList<Bullet> bullets;
   public static ArrayList<Enemy> enemies;
+  public static ArrayList<PowerUp> powerUps;
 
   private long waveStartTimer;
   private long waveStartTimerDiff;
@@ -59,6 +60,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     player = new Player();
     bullets = new ArrayList<Bullet>();
     enemies = new ArrayList<Enemy>();
+    powerUps = new ArrayList<PowerUp>();
 
     waveStartTimer = 0;
     waveStartTimerDiff = 0;
@@ -140,6 +142,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
       enemies.get(i).update();
     }
 
+    // Power Up update
+    for (int pu = 0; pu < powerUps.size(); pu++) {
+      boolean remove = powerUps.get(pu).update();
+      if (remove) {
+        powerUps.remove(pu);
+        pu--;
+      }
+    }
+
     // Bullet-Enemy collision
     checkBulletEnemyCollision();
 
@@ -205,6 +216,17 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     for (int en = 0; en < enemies.size(); en++) {
       if (enemies.get(en).isDead()) {
         Enemy enemy = enemies.get(en);
+
+        // Chance for power up
+        double rand = Math.random();
+        if (rand < 0.001) {
+          powerUps.add(new PowerUp(1, enemy.getx(), enemy.gety()));
+        } else if (rand < 0.020) {
+          powerUps.add(new PowerUp(3, enemy.getx(), enemy.gety()));
+        } else if (rand < 0.120) {
+          powerUps.add(new PowerUp(2, enemy.getx(), enemy.gety()));
+        }
+
         player.addScore(enemy.getType() + enemy.getRank());
         enemies.remove(en);
         en--;
@@ -228,6 +250,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     // Enemies draw
     for (int i = 0; i < enemies.size(); i++) {
       enemies.get(i).draw(g);
+    }
+
+    // Power Ups draw
+    for (int i = 0; i < powerUps.size(); i++) {
+      powerUps.get(i).draw(g);
     }
 
     // Draw wave number
