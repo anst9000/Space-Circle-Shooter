@@ -20,6 +20,9 @@ public class Enemy {
   private boolean ready;
   private boolean dead;
 
+  private boolean hit;
+  private long hitTimer;
+
   // CONSTRUCTOR
   public Enemy(int type, int rank) {
     this.type = type;
@@ -34,6 +37,41 @@ public class Enemy {
         r = 5;
         health = 1;
       }
+      if (rank == 2) {
+        speed = 2;
+        r = 10;
+        health = 2;
+      }
+      if (rank == 3) {
+        speed = 1.5;
+        r = 20;
+        health = 3;
+      }
+      if (rank == 4) {
+        speed = 1.5;
+        r = 30;
+        health = 4;
+      }
+    }
+
+    // Stronger, faster default
+    if (type == 2) {
+      color1 = Color.RED;
+      if (rank == 1) {
+        speed = 3;
+        r = 5;
+        health = 2;
+      }
+    }
+
+    // Slow, but hard to kill enemy
+    if (type == 3) {
+      color1 = Color.GREEN;
+      if (rank == 1) {
+        speed = 1.5;
+        r = 5;
+        health = 5;
+      }
     }
 
     x = Math.random() * GamePanel.WIDTH / 2 + GamePanel.WIDTH / 4;
@@ -47,6 +85,9 @@ public class Enemy {
 
     ready = false;
     dead = false;
+
+    hit = false;
+    hitTimer = 0;
   }
 
   // FUNCTIONS
@@ -79,6 +120,32 @@ public class Enemy {
     if (health <= 0) {
       dead = true;
     }
+
+    hit = true;
+    hitTimer = System.nanoTime();
+  }
+
+  public void explode() {
+    if (rank > 1) {
+      int amount = 0;
+      if (type == 1) {
+        amount = 3;
+      }
+
+      for (int i = 0; i < amount; i++) {
+        Enemy enemy = new Enemy(getType(), getRank() - 1);
+        enemy.x = this.x;
+        enemy.y = this.y;
+        double angle = 0;
+        if (!ready) {
+          angle = Math.random() * 140 + 20;
+        } else {
+          angle = Math.random() * 360;
+        }
+        enemy.rad = Math.toRadians(angle);
+        GamePanel.enemies.add(enemy);
+      }
+    }
   }
 
   public void update() {
@@ -99,16 +166,34 @@ public class Enemy {
       dx = -dx;
     if (y > GamePanel.HEIGHT - r && dy > 0)
       dy = -dy;
+
+    if (hit) {
+      long elapsed = (System.nanoTime() - hitTimer) / 1000000;
+      if (elapsed > 100) {
+        hit = false;
+        hitTimer = 0;
+      }
+    }
   }
 
   public void draw(Graphics2D g) {
-    g.setColor(color1);
-    g.fillOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
+    if (hit) {
+      g.setColor(Color.WHITE);
+      g.fillOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
 
-    g.setStroke(new BasicStroke(3));
-    g.setColor(color1.darker());
-    g.drawOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
-    g.setStroke(new BasicStroke(1));
+      g.setStroke(new BasicStroke(3));
+      g.setColor(Color.WHITE.darker());
+      g.drawOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
+      g.setStroke(new BasicStroke(1));
+    } else {
+      g.setColor(color1);
+      g.fillOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
+
+      g.setStroke(new BasicStroke(3));
+      g.setColor(color1.darker());
+      g.drawOval((int) (x - r), (int) (y - r), 2 * r, 2 * r);
+      g.setStroke(new BasicStroke(1));
+    }
   }
 
 }

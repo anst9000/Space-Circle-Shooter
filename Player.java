@@ -27,6 +27,9 @@ public class Player {
   private Color colorRed;
 
   private int score;
+  private int powerLevel;
+  private int power;
+  private int[] requiredPower = { 1, 2, 3, 4, 5 };
 
   // CONSTRUCTOR
   public Player() {
@@ -101,10 +104,34 @@ public class Player {
     score += sc;
   }
 
+  public void gainLife() {
+    lives++;
+  }
+
   public void loseLife() {
     lives--;
     recovering = true;
     recoverTimer = System.nanoTime();
+  }
+
+  public void increasePower(int amount) {
+    power += amount;
+    if (power >= requiredPower[powerLevel]) {
+      power -= requiredPower[powerLevel];
+      powerLevel++;
+    }
+  }
+
+  public int getPowerLevel() {
+    return powerLevel;
+  }
+
+  public int getPower() {
+    return power;
+  }
+
+  public int getRequiredPower() {
+    return requiredPower[powerLevel];
   }
 
   public void update() {
@@ -132,18 +159,32 @@ public class Player {
     dx = 0;
     dy = 0;
 
+    // Firing
     if (firing) {
       long elapsed = (System.nanoTime() - firingTimer) / 1000000;
+
       if (elapsed > firingDelay) {
-        GamePanel.bullets.add(new Bullet(270, x, y));
         firingTimer = System.nanoTime();
+
+        if (powerLevel < 2) {
+          GamePanel.bullets.add(new Bullet(270, x, y));
+        } else if (powerLevel < 4) {
+          GamePanel.bullets.add(new Bullet(272, x + 5, y));
+          GamePanel.bullets.add(new Bullet(268, x - 5, y));
+        } else {
+          GamePanel.bullets.add(new Bullet(270, x, y));
+          GamePanel.bullets.add(new Bullet(273, x + 5, y));
+          GamePanel.bullets.add(new Bullet(267, x - 5, y));
+        }
       }
     }
 
-    long elapsed = (System.nanoTime() - recoverTimer) / 1000000;
-    if (elapsed > 2000) {
-      recovering = false;
-      recoverTimer = 0;
+    if (recovering) {
+      long elapsed = (System.nanoTime() - recoverTimer) / 1000000;
+      if (elapsed > 2000) {
+        recovering = false;
+        recoverTimer = 0;
+      }
     }
   }
 

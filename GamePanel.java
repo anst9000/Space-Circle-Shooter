@@ -159,6 +159,43 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     // Check Player-Enemy collision
     checkPlayerEnemyCollision();
+
+    // Check Player-PowerUp collision
+    checkPlayerPowerUpCollision();
+  }
+
+  private void checkPlayerPowerUpCollision() {
+    int px = player.getx();
+    int py = player.gety();
+    int pr = player.getr();
+
+    for (int pu = 0; pu < powerUps.size(); pu++) {
+      PowerUp powerUp = powerUps.get(pu);
+      double x = powerUp.getx();
+      double y = powerUp.gety();
+      double r = powerUp.getr();
+
+      double dx = px - x;
+      double dy = py - y;
+      double dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Collected Power Up
+      if (dist < pr + r) {
+        int type = powerUp.getType();
+        if (type == 1) {
+          player.gainLife();
+        }
+        if (type == 2) {
+          player.increasePower(1);
+        }
+        if (type == 3) {
+          player.increasePower(2);
+        }
+
+        powerUps.remove(pu);
+        pu--;
+      }
+    }
   }
 
   private void checkPlayerEnemyCollision() {
@@ -230,6 +267,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         player.addScore(enemy.getType() + enemy.getRank());
         enemies.remove(en);
         en--;
+
+        enemy.explode();
       }
     }
   }
@@ -280,6 +319,17 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
       g.setStroke(new BasicStroke(1));
     }
 
+    // Draw player power
+    g.setColor(new Color(225, 225, 0));
+    g.fillRect(20, 40, player.getPower() * 8, 8);
+    g.setColor(new Color(225, 225, 0).darker());
+    g.setStroke(new BasicStroke(2));
+
+    for (int i = 0; i < player.getRequiredPower(); i++) {
+      g.drawRect(20 + 8 * i, 40, 8, 8);
+    }
+    g.setStroke(new BasicStroke(1));
+
     // Draw player score
     g.setColor(Color.WHITE);
     g.setFont(new Font("Century Gothic", Font.PLAIN, 14));
@@ -302,15 +352,60 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     if (waveNumber == 2) {
-      for (int i = 0; i < 8; i++) {
+      for (int i = 0; i < 4; i++) {
         enemies.add(new Enemy(1, 1));
+        if (i % 2 == 0) {
+          enemies.add(new Enemy(2, 1));
+          enemies.add(new Enemy(1, 2));
+        }
+      }
+    }
+
+    if (waveNumber == 3) {
+      for (int i = 0; i < 4; i++) {
+        enemies.add(new Enemy(2, 1));
+        enemies.add(new Enemy(3, 1));
+
+        if (i % 2 == 0) {
+          enemies.add(new Enemy(1, 2));
+          enemies.add(new Enemy(1, 3));
+          enemies.add(new Enemy(1, 4));
+        }
+      }
+    }
+
+    if (waveNumber == 4) {
+      for (int i = 0; i < 4; i++) {
+        enemies.add(new Enemy(1, 1));
+        enemies.add(new Enemy(2, 1));
+        enemies.add(new Enemy(3, 1));
+
+        if (i % 2 == 0) {
+          enemies.add(new Enemy(1, 1));
+          enemies.add(new Enemy(1, 2));
+          enemies.add(new Enemy(1, 3));
+          enemies.add(new Enemy(1, 4));
+        }
+      }
+    }
+    if (waveNumber == 5) {
+      for (int i = 0; i < 6; i++) {
+        enemies.add(new Enemy(1, 1));
+        enemies.add(new Enemy(2, 1));
+        enemies.add(new Enemy(3, 1));
+
+        if (i % 2 == 0) {
+          enemies.add(new Enemy(1, 1));
+          enemies.add(new Enemy(1, 2));
+          enemies.add(new Enemy(1, 3));
+          enemies.add(new Enemy(1, 4));
+        }
       }
     }
   }
 
   @Override
   public void keyTyped(KeyEvent key) {
-    // TODO Auto-generated method stub
 
   }
 
