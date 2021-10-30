@@ -110,6 +110,20 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         totalTime = 0;
       }
     }
+
+    g.setColor(new Color(0, 100, 255));
+    g.fillRect(0, 0, WIDTH, HEIGHT);
+    g.setColor(Color.WHITE);
+    g.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+
+    String text = "G A M E   O V E R";
+    int length = (int) g.getFontMetrics().getStringBounds(text, g).getWidth();
+    g.drawString(text, (WIDTH - length) / 2, HEIGHT / 2);
+
+    text = "Score " + player.getScore();
+    length = (int) g.getFontMetrics().getStringBounds(text, g).getWidth();
+    g.drawString(text, (WIDTH - length) / 2, HEIGHT / 2 + 30);
+    gameDraw();
   }
 
   private void gameUpdate() {
@@ -182,6 +196,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     // Check dead enemies
     checkDeadEnemies();
+
+    // Check dead player
+    if (player.isDead()) {
+      running = false;
+    }
 
     // Check Player-Enemy collision
     checkPlayerEnemyCollision();
@@ -306,13 +325,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         if (rand < 0.005) {
           powerUps.add(new PowerUp(1, enemy.getx(), enemy.gety()));
         } else if (rand < 0.025) {
-          powerUps.add(new PowerUp(3, enemy.getx(), enemy.gety()));
+          powerUps.add(new PowerUp(4, enemy.getx(), enemy.gety()));
         } else if (rand < 0.075) {
-          powerUps.add(new PowerUp(2, enemy.getx(), enemy.gety()));
+          powerUps.add(new PowerUp(3, enemy.getx(), enemy.gety()));
         } else if (rand < 0.125) {
-          powerUps.add(new PowerUp(4, enemy.getx(), enemy.gety()));
-        } else if (rand < 0.175) {
-          powerUps.add(new PowerUp(4, enemy.getx(), enemy.gety()));
+          powerUps.add(new PowerUp(2, enemy.getx(), enemy.gety()));
         }
 
         player.addScore(enemy.getType() + enemy.getRank());
@@ -421,61 +438,135 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     enemies.clear();
 
     if (waveNumber == 1) {
-      for (int i = 0; i < 4; i++) {
-        enemies.add(new Enemy(1, 1));
+      for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 2; j++) {
+          enemies.add(new Enemy(i, 1));
+        }
       }
     }
 
     if (waveNumber == 2) {
-      for (int i = 0; i < 4; i++) {
-        enemies.add(new Enemy(1, 1));
-        if (i % 2 == 0) {
-          enemies.add(new Enemy(2, 1));
-          enemies.add(new Enemy(1, 2));
+      for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 2; j++) {
+          enemies.add(new Enemy(i, 1));
+
+          if (i % 2 == 0) {
+            enemies.add(new Enemy(1, 2));
+          }
         }
       }
     }
 
     if (waveNumber == 3) {
-      for (int i = 0; i < 4; i++) {
-        enemies.add(new Enemy(2, 1));
-        enemies.add(new Enemy(3, 1));
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 2));
+
+        for (int j = 1; j <= 2; j++) {
+          enemies.add(new Enemy(i, 1));
+        }
 
         if (i % 2 == 0) {
           enemies.add(new Enemy(1, 2));
+        }
+        if (i % 1 == 0) {
           enemies.add(new Enemy(1, 3));
-          enemies.add(new Enemy(1, 4));
         }
       }
     }
 
     if (waveNumber == 4) {
-      for (int i = 0; i < 4; i++) {
-        enemies.add(new Enemy(1, 1));
-        enemies.add(new Enemy(2, 1));
-        enemies.add(new Enemy(3, 1));
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
+      }
+    }
+
+    if (waveNumber == 5) {
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
 
         if (i % 2 == 0) {
-          enemies.add(new Enemy(1, 1));
-          enemies.add(new Enemy(1, 2));
           enemies.add(new Enemy(1, 3));
+        }
+      }
+    }
+
+    if (waveNumber == 6) {
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
+
+        if (i % 1 == 0) {
+          enemies.add(new Enemy(1, 3));
+        }
+        if (i % 2 == 0) {
           enemies.add(new Enemy(1, 4));
         }
       }
     }
-    if (waveNumber == 5) {
-      for (int i = 0; i < 6; i++) {
-        enemies.add(new Enemy(1, 1));
-        enemies.add(new Enemy(2, 1));
-        enemies.add(new Enemy(3, 1));
+
+    if (waveNumber == 7) {
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
+        enemies.add(new Enemy(i, 4));
+      }
+    }
+
+    if (waveNumber == 8) {
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
+        enemies.add(new Enemy(i, 4));
 
         if (i % 2 == 0) {
-          enemies.add(new Enemy(1, 1));
-          enemies.add(new Enemy(1, 2));
-          enemies.add(new Enemy(1, 3));
           enemies.add(new Enemy(1, 4));
         }
       }
+    }
+
+    if (waveNumber == 9) {
+      for (int i = 1; i <= 3; i++) {
+        enemies.add(new Enemy(i, 1));
+        enemies.add(new Enemy(i, 2));
+        enemies.add(new Enemy(i, 3));
+        enemies.add(new Enemy(i, 4));
+
+        if (i % 2 == 0) {
+          enemies.add(new Enemy(1, 4));
+        }
+
+        if (i % 1 == 0) {
+          enemies.add(new Enemy(2, 4));
+        }
+      }
+    }
+
+    if (waveNumber == 10) {
+      for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 2; j++) {
+          enemies.add(new Enemy(i, 1));
+          enemies.add(new Enemy(i, 2));
+          enemies.add(new Enemy(i, 3));
+          enemies.add(new Enemy(i, 4));
+
+          if (i % 2 == 0) {
+            enemies.add(new Enemy(1, 4));
+            enemies.add(new Enemy(2, 4));
+            enemies.add(new Enemy(3, 4));
+          }
+        }
+      }
+    }
+
+    if (waveNumber > 10) {
+      running = false;
     }
   }
 

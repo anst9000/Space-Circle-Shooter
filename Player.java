@@ -76,6 +76,10 @@ public class Player {
     return lives;
   }
 
+  public boolean isDead() {
+    return lives <= 0;
+  }
+
   public boolean isRecovering() {
     return recovering;
   }
@@ -116,6 +120,12 @@ public class Player {
 
   public void increasePower(int amount) {
     power += amount;
+    if (powerLevel == 4) {
+      if (power > requiredPower[powerLevel]) {
+        power = requiredPower[powerLevel];
+      }
+      return;
+    }
     if (power >= requiredPower[powerLevel]) {
       power -= requiredPower[powerLevel];
       powerLevel++;

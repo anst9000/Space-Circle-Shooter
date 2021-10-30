@@ -87,22 +87,22 @@ public class Enemy {
       if (rank == 1) {
         speed = 1.5;
         r = 5;
-        health = 5;
+        health = 3;
       }
       if (rank == 2) {
         speed = 1.5;
         r = 10;
-        health = 6;
+        health = 4;
       }
       if (rank == 3) {
         speed = 1.5;
         r = 25;
-        health = 7;
+        health = 5;
       }
       if (rank == 4) {
         speed = 1.5;
         r = 45;
-        health = 8;
+        health = 5;
       }
     }
 
@@ -176,6 +176,7 @@ public class Enemy {
 
       for (int i = 0; i < amount; i++) {
         Enemy enemy = new Enemy(getType(), getRank() - 1);
+        enemy.setSlow(slow);
         enemy.x = this.x;
         enemy.y = this.y;
         double angle = 0;
